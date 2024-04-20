@@ -50,8 +50,9 @@ function operate(a, op, b) {
     }
 };
 
-firstNum = 2;
+/*firstNum = 2;
 secondNum = 5;
 operator = "*";
 
-console.log(operate(firstNum, operator, secondNum));
+console.log(operate(firstNum, operator, secondNum));*/
+
