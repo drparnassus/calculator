@@ -25,14 +25,10 @@ body {
     background-color: grey;
 }
 
-#display, #row1, #row2, #row3, #row4, #row5 {
-    display: flex;
-    height: 100px;
-}
-
-#display {
+.display {
     display: flex;
     width: 400px;
+    height: 100px;
     background-color: rgb(65, 65, 65);
     color: white;
     font-size: 72px;
@@ -50,7 +46,3 @@ button {
 #zeroBtn {
     width: 200px;
 }
-
-/*#display, #row1, #row2, #row3, #row4 {
-
-}*/
