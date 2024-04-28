@@ -9,25 +9,25 @@ operator: '',
 
 
 buttons: [
-    {id: '', label: 'AC', class: ''},
-    {id: 'altBtn', label: '+/-', class: ''},
-    {id: 'moduloBtn', label: '%', class: ''},
-    {id: 'divideBtn', label: '/', class: ''},
-    {id: 'sevenBtn', label: '7', class: ''},
-    {id: 'eightBtn', label: '8', class: ''},
-    {id: 'nineBtn', label: '9', class: ''},
-    {id: 'multiplyBtn', label: '*', class: ''},
-    {id: 'fourBtn', label: '4', class: ''},
-    {id: 'fiveBtn', label: '5', class: ''},
-    {id: 'sixBtn', label: '6', class: ''},
-    {id: 'subtractBtn', label: '1', class: ''},
-    {id: 'oneBtn', label: '2', class: ''},
-    {id: 'twoBtn', label: '3', class: ''},
-    {id: 'threeBtn', label: '+', class: ''},
-    {id: 'addBtn', label: '-', class: ''},
-    {id: 'zeroBtn', label: '0', class: ''},
-    {id: 'decimalBtn', label: '.', class: ''},
-    {id: 'equalsBtn', label: '=', class: ''},
+    {id: 'clearBtn', label: 'AC', class: 'calcButton'},
+    {id: 'altBtn', label: '+/-', class: 'calcButton'},
+    {id: 'moduloBtn', label: '%', class: 'calcButton'},
+    {id: 'divideBtn', label: '/', class: 'calcButton'},
+    {id: 'sevenBtn', label: '7', class: 'calcButton'},
+    {id: 'eightBtn', label: '8', class: 'calcButton'},
+    {id: 'nineBtn', label: '9', class: 'calcButton'},
+    {id: 'multiplyBtn', label: '*', class: 'calcButton'},
+    {id: 'fourBtn', label: '4', class: 'calcButton'},
+    {id: 'fiveBtn', label: '5', class: 'calcButton'},
+    {id: 'sixBtn', label: '6', class: 'calcButton'},
+    {id: 'subtractBtn', label: '-', class: 'calcButton'},
+    {id: 'oneBtn', label: '1', class: 'calcButton'},
+    {id: 'twoBtn', label: '2', class: 'calcButton'},
+    {id: 'threeBtn', label: '3', class: 'calcButton'},
+    {id: 'addBtn', label: '+', class: 'calcButton'},
+    {id: 'zeroBtn', label: '0', class: 'calcButton'},
+    {id: 'decimalBtn', label: '.', class: 'calcButton'},
+    {id: 'equalsBtn', label: '=', class: 'calcButton'},
 ],
 
 add: function(x,y) {
@@ -72,10 +72,43 @@ operate: function(a, op, b) {
 },
 
 makeCalculator: function() {
-    const calc=document.getElementById("calculatorBox");
+    const calculatorBox=document.createElement("div")
+    calculatorBox.id="calculatorBox";
+    calculatorBox.style.display="flex";
+    calculatorBox.style.flexWrap="wrap";
+    calculatorBox.style.width="400px";
+    calculatorBox.style.height="600px";
+    calculatorBox.style.backgroundColor="grey";
+
+
     const display=document.createElement("div");
     display.className="display";
-    calc.appendChild(display);
+    display.style.display="flex";
+    display.style.width="400px";
+    display.style.height="100px";
+    display.style.backgroundColor="rgb(65, 65, 65)";
+    display.style.color="white";
+    display.style.fontSize="72px";
+    display.style.justifyContent="end";
+    display.style.alignItems="center";
+    display.style.padding="10px";
+    calculatorBox.appendChild(display);
+
+    this.buttons.forEach(buttonMaker => {
+        const button = document.createElement("button");
+        button.textContent = buttonMaker.label;
+        button.id = buttonMaker.id;
+        button.className = buttonMaker.class;
+        button.style.width="100px";
+        button.style.height="100px";
+        button.style.fontSize="24px";
+        if (buttonMaker.id == "zeroBtn") {
+            button.style.width="200px";
+        }
+        calculatorBox.appendChild(button);
+    });
+
+    document.body.appendChild(calculatorBox);
 },
 }
 
