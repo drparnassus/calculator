@@ -138,6 +138,7 @@ makeCalculator: function() {
                 console.log('Old Value:', calculator.oldValue);
                 console.log('Operator:', calculator.operator);
                 console.log('Display Value:', calculator.displayValue);
+                const maxLength = 10;
         
                 if (calculator.oldValue === '' || calculator.operator === '') {
                     // If oldValue or operator is empty, display an error
@@ -152,23 +153,31 @@ makeCalculator: function() {
                         console.log('Error: Invalid calculation result');
                         calculator.display.textContent = "Error";
                     } else {
+                        let displayResult;
                         const roundedValue = parseFloat(newValue.toFixed(10));
                         calculator.displayValue = roundedValue.toString();
-                        calculator.display.textContent = this.displayValue;
-                        calculator.oldValue = calculator.displayValue; // Store the result for future operations
+                        if (this.displayValue.length > maxLength) {
+                            // Convert the display value to scientific notation
+                            const scientificNotation = parseFloat(this.displayValue).toExponential(maxLength - 5); // Preserve 5 significant digits
+                            
+                            // Update the display text content with the scientific notation
+                            this.display.textContent = scientificNotation;
+                            this.oldValue = scientificNotation; // Store the result for future operations
+                        } else {
+                            // Update the display text content with the full value
+                            this.display.textContent = this.displayValue;
+                            this.oldValue = this.displayValue; // Store the result for future operations
+                        }
                     }
                 }
                 calculator.operationClicked = false; // Reset operation flag after calculation
             });
             console.log('Old Value:', calculator.oldValue);
-                console.log('Operator:', calculator.operator);
-                console.log('Display Value:', calculator.displayValue);
+            console.log('Operator:', calculator.operator);
+            console.log('Display Value:', calculator.displayValue);
         }
-        
-        
         this.calculatorBox.appendChild(button);
     });
-
     document.body.appendChild(this.calculatorBox);
 },
 
@@ -199,18 +208,9 @@ clearDisplay: function() {
     this.displayValue = '';
     this.display.textContent = this.displayValue;
 },
-
-
 }
 
 calculator.makeCalculator();
-
-
-
-
-
-
-
 
 /*console.log(add(1,7));
 console.log(subtract(1,7));
@@ -224,4 +224,3 @@ secondNum = 5;
 operator = "*";
 
 console.log(operate(firstNum, operator, secondNum));*/
-
