@@ -7,25 +7,26 @@ newDigit: '',
 oldValue: '',
 result: '',
 operator: '',
+operationClicked: false,
 
 
 buttons: [
     {id: 'clearBtn', label: 'AC', class: 'calcButton'},
     {id: 'altBtn', label: '+/-', class: 'calcButton'},
-    {id: 'moduloBtn', label: '%', class: 'calcButton'},
-    {id: 'divideBtn', label: '/', class: 'calcButton'},
+    {id: 'moduloBtn', label: '%', class: 'opButton'},
+    {id: 'divideBtn', label: '/', class: 'opButton'},
     {id: 'sevenBtn', label: '7', class: 'numButton'},
     {id: 'eightBtn', label: '8', class: 'numButton'},
     {id: 'nineBtn', label: '9', class: 'numButton'},
-    {id: 'multiplyBtn', label: '*', class: 'calcButton'},
+    {id: 'multiplyBtn', label: '*', class: 'opButton'},
     {id: 'fourBtn', label: '4', class: 'numButton'},
     {id: 'fiveBtn', label: '5', class: 'numButton'},
     {id: 'sixBtn', label: '6', class: 'numButton'},
-    {id: 'subtractBtn', label: '-', class: 'calcButton'},
+    {id: 'subtractBtn', label: '-', class: 'opButton'},
     {id: 'oneBtn', label: '1', class: 'numButton'},
     {id: 'twoBtn', label: '2', class: 'numButton'},
     {id: 'threeBtn', label: '3', class: 'numButton'},
-    {id: 'addBtn', label: '+', class: 'calcButton'},
+    {id: 'addBtn', label: '+', class: 'opButton'},
     {id: 'zeroBtn', label: '0', class: 'numButton'},
     {id: 'decimalBtn', label: '.', class: 'calcButton'},
     {id: 'equalsBtn', label: '=', class: 'calcButton'},
@@ -52,24 +53,25 @@ divide: function(x,y) {
     }
 },
 
+modulo: function(x,y) {
+    return x%y;
+},
+
 operate: function(a, op, b) {
     switch (op) {
         case "+":
-            return add(a,b);
-            break;
+            return this.add(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
         case "-":
-            return subtract(a,b);
-            break;
+            return this.subtract(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
         case "*":
-            return multiply(a,b);
-            break;
+            return this.multiply(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
         case "/":
-            return divide(a,b);
-            break;
+            return this.divide(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
+        case "%":
+            return this.modulo(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
         default:
             break;
     }
-    
 },
 
 makeCalculator: function() {
@@ -108,6 +110,11 @@ makeCalculator: function() {
         }
         if (buttonMaker.class == "numButton" || buttonMaker.id == "decimalBtn") {
             button.addEventListener("click", () => {
+                // Clear the display if an operation button was clicked previously
+                if (calculator.operationClicked) {
+                    calculator.clearDisplay();
+                    calculator.operationClicked = false; // Reset the flag after clearing the display
+                }               
                 calculator.newDigit = buttonMaker.label;
                 calculator.updateDisplay();
             });
@@ -115,8 +122,50 @@ makeCalculator: function() {
         if (buttonMaker.id == "clearBtn") {
             button.addEventListener("click", () => {
                 calculator.clearDisplay();
+                calculator.operationClicked = false;
             });
         }
+        if (buttonMaker.class == "opButton") {
+            button.addEventListener("click", () => {
+                calculator.operationClicked = true;
+                calculator.operator=buttonMaker.label;
+                calculator.oldValue=calculator.displayValue;
+            });
+        }
+        if (buttonMaker.id == "equalsBtn") {
+            button.addEventListener("click", () => {
+                console.log('Equals Button Clicked');
+                console.log('Old Value:', calculator.oldValue);
+                console.log('Operator:', calculator.operator);
+                console.log('Display Value:', calculator.displayValue);
+        
+                if (calculator.oldValue === '' || calculator.operator === '') {
+                    // If oldValue or operator is empty, display an error
+                    console.log('Error: Missing operand or operator');
+                    calculator.display.textContent = "Error";
+                } else {
+                    // Perform the calculation using parseFloat on both operands
+                    const newValue = calculator.operate(parseFloat(calculator.oldValue), calculator.operator, parseFloat(calculator.displayValue));
+                    console.log('New Value:', newValue);
+        
+                    if (isNaN(newValue)) {
+                        console.log('Error: Invalid calculation result');
+                        calculator.display.textContent = "Error";
+                    } else {
+                        const roundedValue = parseFloat(newValue.toFixed(10));
+                        calculator.displayValue = roundedValue.toString();
+                        calculator.display.textContent = this.displayValue;
+                        calculator.oldValue = calculator.displayValue; // Store the result for future operations
+                    }
+                }
+                calculator.operationClicked = false; // Reset operation flag after calculation
+            });
+            console.log('Old Value:', calculator.oldValue);
+                console.log('Operator:', calculator.operator);
+                console.log('Display Value:', calculator.displayValue);
+        }
+        
+        
         this.calculatorBox.appendChild(button);
     });
 
@@ -128,7 +177,7 @@ updateDisplay: function() {
     if (this.newDigit === '.' && this.displayValue.includes('.')) {
         return;
     }
-    
+
     // Append the new digit to the display value
     this.displayValue += this.newDigit;
 
