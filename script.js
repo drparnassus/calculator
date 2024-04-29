@@ -2,8 +2,8 @@
 
 const calculator = {
 
-displayValue: '',
-newDigit: '',
+currentValue: '',
+newValue: '',
 oldValue: '',
 result: '',
 operator: '',
@@ -32,47 +32,62 @@ buttons: [
     {id: 'equalsBtn', label: '=', class: 'calcButton'},
 ],
 
-add: function(x,y) {
-    return x+y;
+add: function(x,y, precision) {
+    const scaler = Math.pow(10, precision);
+    const result = (parseFloat(x) * scaler + parseFloat(y) * scaler) / scaler;
+    return result.toFixed(precision);
 },
 
-subtract: function(x,y) {
-    return x-y;
+subtract: function(x,y, precision) {
+    const scaler = Math.pow(10, precision);
+    const result = (parseFloat(x) * scaler - parseFloat(y) * scaler) / scaler;
+    return result.toFixed(precision);
 },
 
-multiply: function(x,y) {
-    return x*y;
+multiply: function(x,y, precision) {
+    const result = parseFloat(x) * parseFloat(y);
+    return result.toFixed(precision);
 },
 
-divide: function(x,y) {
-    if (y==0) {
-        return "ERROR"
+divide: function(x,y, precision) {
+    if (parseFloat(y)==0) {
+        return "ERROR: DIV 0"
     }
-    else {
-        return x/y;
+    const result = parseFloat(x) / parseFloat(y);
+    return result.toFixed(precision);
+},
+
+modulo: function(x, y, precision) {
+    const scaler = Math.pow(10, precision);
+    const scaledX = parseFloat(x) * scaler;
+    const scaledY = parseFloat(y) * scaler;
+    const result = scaledX % scaledY;
+    return (result / scaler).toFixed(precision);
+},
+
+operate: function(a, op, b, precision) {
+    precision = precision || 0;
+
+    if (precision < 0) {
+        throw new Error("Precision must be a non-negative integer");
     }
-},
 
-modulo: function(x,y) {
-    return x%y;
-},
-
-operate: function(a, op, b) {
     switch (op) {
-        case "+":
-            return this.add(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
-        case "-":
-            return this.subtract(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
-        case "*":
-            return this.multiply(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
-        case "/":
-            return this.divide(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
-        case "%":
-            return this.modulo(parseFloat(a), parseFloat(b)); // Ensure a and b are parsed as floats
+        case '+':
+            return this.add(a, b, precision);
+        case '-':
+            return this.subtract(a, b, precision);
+        case '*':
+            return this.multiply(a, b, precision);
+        case '/':
+            return this.divide(a, b, precision);
+        case '%':
+            return this.modulo(a, b, precision);
         default:
-            break;
+            throw new Error("Invalid operator");
     }
 },
+
 
 makeCalculator: function() {
     this.calculatorBox=document.createElement("div")
@@ -115,92 +130,95 @@ makeCalculator: function() {
                     calculator.clearDisplay();
                     calculator.operationClicked = false; // Reset the flag after clearing the display
                 }               
-                calculator.newDigit = buttonMaker.label;
-                calculator.updateDisplay();
+                calculator.newValue = buttonMaker.label;
+                calculator.updateCurrentValue();
+                // Console log the variables for debugging
+            console.log('oldValue:', this.oldValue);
+            console.log('currentValue:', this.currentValue);
+            console.log('operator:', this.operator);
+            console.log('operationClicked:', this.operationClicked);
             });
         }
         if (buttonMaker.id == "clearBtn") {
             button.addEventListener("click", () => {
-                calculator.clearDisplay();
-                calculator.operationClicked = false;
+                this.clearAll();
+                // Console log the variables for debugging
+            console.log('oldValue:', this.oldValue);
+            console.log('currentValue:', this.currentValue);
+            console.log('operator:', this.operator);
+            console.log('operationClicked:', this.operationClicked);
             });
         }
         if (buttonMaker.class == "opButton") {
             button.addEventListener("click", () => {
-                calculator.operationClicked = true;
-                calculator.operator=buttonMaker.label;
-                calculator.oldValue=calculator.displayValue;
+                
+                if (this.oldValue && this.currentValue) {
+                    this.currentValue = this.operate(this.oldValue, this.operator, this.currentValue, 10);
+                    this.display.textContent = this.currentValue;
+                    this.currentValue='';
+                    console.log("hello world");
+                }
+
+                else {
+                this.operator=buttonMaker.label;
+                this.oldValue=this.currentValue;
+                this.currentValue='';
+                }
+                this.operationClicked=true;
+            // Console log the variables for debugging
+            console.log('oldValue:', this.oldValue);
+            console.log('currentValue:', this.currentValue);
+            console.log('operator:', this.operator);
+            console.log('operationClicked:', this.operationClicked);                
             });
         }
         if (buttonMaker.id == "equalsBtn") {
             button.addEventListener("click", () => {
-                console.log('Equals Button Clicked');
-                console.log('Old Value:', calculator.oldValue);
-                console.log('Operator:', calculator.operator);
-                console.log('Display Value:', calculator.displayValue);
-                const maxLength = 10;
-        
-                if (calculator.oldValue === '' || calculator.operator === '') {
-                    // If oldValue or operator is empty, display an error
-                    console.log('Error: Missing operand or operator');
-                    calculator.display.textContent = "Error";
-                } else {
-                    // Perform the calculation using parseFloat on both operands
-                    const newValue = calculator.operate(parseFloat(calculator.oldValue), calculator.operator, parseFloat(calculator.displayValue));
-                    console.log('New Value:', newValue);
-        
-                    if (isNaN(newValue)) {
-                        console.log('Error: Invalid calculation result');
-                        calculator.display.textContent = "Error";
-                    } else {
-                        let displayResult;
-                        const roundedValue = parseFloat(newValue.toFixed(10));
-                        calculator.displayValue = roundedValue.toString();
-                        if (this.displayValue.length > maxLength) {
-                            // Convert the display value to scientific notation
-                            const scientificNotation = parseFloat(this.displayValue).toExponential(maxLength - 5); // Preserve 5 significant digits
-                            
-                            // Update the display text content with the scientific notation
-                            this.display.textContent = scientificNotation;
-                            this.oldValue = scientificNotation; // Store the result for future operations
-                        } else {
-                            // Update the display text content with the full value
-                            this.display.textContent = this.displayValue;
-                            this.oldValue = this.displayValue; // Store the result for future operations
-                        }
-                    }
-                }
-                calculator.operationClicked = false; // Reset operation flag after calculation
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('operationClicked:', this.operationClicked);
             });
-            console.log('Old Value:', calculator.oldValue);
-            console.log('Operator:', calculator.operator);
-            console.log('Display Value:', calculator.displayValue);
         }
+        
+        
+        
+        
+        
         this.calculatorBox.appendChild(button);
     });
     document.body.appendChild(this.calculatorBox);
 },
 
-updateDisplay: function() {
-    // Prevent adding multiple decimal points
-    if (this.newDigit === '.' && this.displayValue.includes('.')) {
-        return;
+updateCurrentValue: function() {
+    // Check if the new value is a decimal point
+    if (this.newValue === '.') {
+        // If the current value is empty, set it to "0."
+        if (this.currentValue === '') {
+            this.currentValue = '0';
+        } else {
+            // If a decimal point already exists, return without appending
+            if (this.currentValue.includes('.')) {
+                return;
+            }
+        }
     }
 
     // Append the new digit to the display value
-    this.displayValue += this.newDigit;
+    this.currentValue += this.newValue;
 
     // Check if the display value exceeds a certain length
     const maxLength = 10; // Set your desired maximum length here
-    if (this.displayValue.length > maxLength) {
+    if (this.currentValue.length > maxLength) {
         // Convert the display value to scientific notation
-        const scientificNotation = parseFloat(this.displayValue).toExponential(maxLength - 5); // Preserve 5 significant digits
+        const scientificNotation = parseFloat(this.currentValue).toExponential(maxLength - 5); // Preserve 5 significant digits
         
         // Update the display text content with the scientific notation
         this.display.textContent = scientificNotation;
-    } else {
+    }
+    else {
         // Update the display text content with the full value
-        this.display.textContent = this.displayValue;
+        this.display.textContent = this.currentValue;
     }
 },
 
@@ -208,6 +226,17 @@ clearDisplay: function() {
     this.displayValue = '';
     this.display.textContent = this.displayValue;
 },
+
+clearAll: function() {
+    this.currentValue='';
+    this.newValue='';
+    this.oldValue='';
+    this.result='';
+    this.operator='';
+    this.operationClicked=false;
+    this.clearDisplay();
+},
+
 }
 
 calculator.makeCalculator();
@@ -223,4 +252,21 @@ console.log(add(0.1,0.2));*/
 secondNum = 5;
 operator = "*";
 
-console.log(operate(firstNum, operator, secondNum));*/
+console.log(operate(firstNum, operator, secondNum));
+
+
+
+// Calculate 0.1 + 0.2 with precision 10
+console.log(calculator.operate('0.1', '+', '0.2', 10)); // Output: '0.3'
+
+// Calculate 0.3 - 0.2 with precision 10
+console.log(calculator.operate('0.3', '-', '0.2', 10)); // Output: '0.1'
+
+// Calculate 0.1 * 0.2 with precision 10
+console.log(calculator.operate('0.1', '*', '0.2', 10)); // Output: '0.02'
+
+// Calculate 1 / 3 with precision 10
+console.log(calculator.operate('1', '/', '3', 10)); // Output: '0.3333333333'
+
+// Calculate 10 % 3 with precision 10
+console.log(calculator.operate('10', '%', '3', 10)); // Output: '1'*/
