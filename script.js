@@ -108,11 +108,13 @@ makeCalculator: function() {
     this.display.style.height="100px";
     this.display.style.backgroundColor="rgb(65, 65, 65)";
     this.display.style.color="white";
-    this.display.style.fontSize="72px";
+    this.display.style.fontSize="52px";
     this.display.style.justifyContent="end";
     this.display.style.alignItems="center";
     this.display.style.padding="10px";
     this.calculatorBox.appendChild(this.display);
+
+    
 
     this.buttons.forEach(buttonMaker => {
         const button = document.createElement("button");
@@ -139,25 +141,38 @@ makeCalculator: function() {
                 console.log('oldValue:', this.oldValue);
                 console.log('currentValue:', this.currentValue);
                 console.log('operator:', this.operator);
+                console.log('result:', this.result);
                 console.log('operationClicked:', this.operationClicked);
+                console.log('last equals:', this.lastEquals);
             });
         }
         if (buttonMaker.id == "clearBtn") {
             button.addEventListener("click", () => {
                 this.clearAll();
                 // Console log the variables for debugging
-            console.log('oldValue:', this.oldValue);
-            console.log('currentValue:', this.currentValue);
-            console.log('operator:', this.operator);
-            console.log('newOp:', this.newOperator); 
-            console.log('operationClicked:', this.operationClicked);
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('result:', this.result);
+                console.log('operationClicked:', this.operationClicked);
+                console.log('last equals:', this.lastEquals);
             });
         }
         if (buttonMaker.class == "opButton") {
             button.addEventListener("click", () => {
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('result:', this.result);
+                console.log('operationClicked:', this.operationClicked);
+                console.log('last equals:', this.lastEquals);
                 this.lastEquals = false;
                 if (this.result) {
                     this.oldValue = this.result;
+                    this.result = '';
+                    this.currentValue = '';
+                    this.operator = buttonMaker.label;
+                    this.operationClicked = true;
                 }
                 if (!this.oldValue && this.currentValue) {
                     this.oldValue=this.currentValue;
@@ -166,13 +181,14 @@ makeCalculator: function() {
                     this.operationClicked = true;
                 }
                 else if (this.oldValue && this.currentValue) {
-                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 10);
+                    console.log("hello world");
+                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 14);
                     this.operator = buttonMaker.label;
                     this.oldValue = this.result;
                     if (this.oldValue.includes('.') && this.oldValue.match(/\.?0+$/)) {
                         this.oldValue = this.oldValue.replace(/\.?0+$/, '');
                     }
-                    this.display.textContent = this.oldValue;
+                    this.shredToFit(this.oldValue);
                     this.result = '';
                     this.currentValue = '';
                 }
@@ -180,42 +196,42 @@ makeCalculator: function() {
             console.log('oldValue:', this.oldValue);
             console.log('currentValue:', this.currentValue);
             console.log('operator:', this.operator);
-            console.log('operationClicked:', this.operationClicked);                
+            console.log('result:', this.result);
+            console.log('operationClicked:', this.operationClicked);
+            console.log('last equals:', this.lastEquals);                
             });
         }
         if (buttonMaker.id == "equalsBtn") {
             button.addEventListener("click", () => {
                 console.log('oldValue:', this.oldValue);
-                console.log('currentValue type:', typeof this.currentValue);
                 console.log('currentValue:', this.currentValue);
                 console.log('operator:', this.operator);
-                console.log('operationClicked:', this.operationClicked);
                 console.log('result:', this.result);
+                console.log('operationClicked:', this.operationClicked);
                 console.log('last equals:', this.lastEquals);
                 console.log("calculating........");
                 if (this.lastEquals) {
-                    this.result = this.operate(this.result, this.operator, this.currentValue, 10)
+                    this.result = this.operate(this.result, this.operator, this.currentValue, 14)
                     if (this.result.includes('.') && this.result.match(/\.?0+$/)) {
                         this.result = this.result.replace(/\.?0+$/, '');
                     }
-                    this.display.textContent = this.result;
+                    this.shredToFit(this.result);
                 }
                 else {
-                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 10)
+                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 14)
                     if (this.result.includes('.') && this.result.match(/\.?0+$/)) {
                         this.result = this.result.replace(/\.?0+$/, '');
                     }
-                    this.display.textContent = this.result;
+                    this.shredToFit(this.result);
                 }
                 this.lastEquals = true;
                 this.oldValue = '';
                 console.log('oldValue:', this.oldValue);
-                console.log('currentValue type:', typeof this.currentValue);
                 console.log('currentValue:', this.currentValue);
                 console.log('operator:', this.operator);
+                console.log('result:', this.result);
                 console.log('operationClicked:', this.operationClicked);
                 console.log('last equals:', this.lastEquals);
-                console.log('result:', this.result);
             });
         }
         
@@ -226,6 +242,21 @@ makeCalculator: function() {
         this.calculatorBox.appendChild(button);
     });
     document.body.appendChild(this.calculatorBox);
+},
+
+shredToFit: function(preTrim) {
+    const maxLength = 14; // Set your desired maximum length here
+    if (preTrim.length > maxLength) {
+        // Convert the display value to scientific notation
+        const scientificNotation = parseFloat(preTrim).toExponential(maxLength - 5); // Preserve 5 significant digits
+        
+        // Update the display text content with the scientific notation
+        this.display.textContent = scientificNotation;
+    }
+    else {
+        // Update the display text content with the full value
+        this.display.textContent = preTrim;
+    }
 },
 
 updateCurrentValue: function() {
@@ -246,7 +277,7 @@ updateCurrentValue: function() {
     this.currentValue += this.newValue;
 
     // Check if the display value exceeds a certain length
-    const maxLength = 10; // Set your desired maximum length here
+    const maxLength = 14; // Set your desired maximum length here
     if (this.currentValue.length > maxLength) {
         // Convert the display value to scientific notation
         const scientificNotation = parseFloat(this.currentValue).toExponential(maxLength - 5); // Preserve 5 significant digits
