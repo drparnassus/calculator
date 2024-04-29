@@ -13,26 +13,27 @@ lastEquals: false,
 
 
 buttons: [
-    {id: 'clearBtn', label: 'AC', class: 'calcButton'},
+    {id: 'clearBtn', label: 'AC', class: 'calcButton', dataKey: 'Escape'},
     {id: 'altBtn', label: '+/-', class: 'calcButton'},
-    {id: 'moduloBtn', label: '%', class: 'opButton'},
-    {id: 'divideBtn', label: '/', class: 'opButton'},
-    {id: 'sevenBtn', label: '7', class: 'numButton'},
-    {id: 'eightBtn', label: '8', class: 'numButton'},
-    {id: 'nineBtn', label: '9', class: 'numButton'},
-    {id: 'multiplyBtn', label: '*', class: 'opButton'},
-    {id: 'fourBtn', label: '4', class: 'numButton'},
-    {id: 'fiveBtn', label: '5', class: 'numButton'},
-    {id: 'sixBtn', label: '6', class: 'numButton'},
-    {id: 'subtractBtn', label: '-', class: 'opButton'},
-    {id: 'oneBtn', label: '1', class: 'numButton'},
-    {id: 'twoBtn', label: '2', class: 'numButton'},
-    {id: 'threeBtn', label: '3', class: 'numButton'},
-    {id: 'addBtn', label: '+', class: 'opButton'},
-    {id: 'zeroBtn', label: '0', class: 'numButton'},
-    {id: 'decimalBtn', label: '.', class: 'calcButton'},
-    {id: 'equalsBtn', label: '=', class: 'calcButton'},
+    {id: 'moduloBtn', label: '%', class: 'opButton', dataKey: '%' },
+    {id: 'divideBtn', label: '/', class: 'opButton', dataKey: '/'},
+    {id: 'sevenBtn', label: '7', class: 'numButton', dataKey: '7'},
+    {id: 'eightBtn', label: '8', class: 'numButton', dataKey: '8'},
+    {id: 'nineBtn', label: '9', class: 'numButton', dataKey: '9'},
+    {id: 'multiplyBtn', label: '*', class: 'opButton', dataKey: '*'},
+    {id: 'fourBtn', label: '4', class: 'numButton', dataKey: '4'},
+    {id: 'fiveBtn', label: '5', class: 'numButton', dataKey: '5'},
+    {id: 'sixBtn', label: '6', class: 'numButton', dataKey: '6'},
+    {id: 'subtractBtn', label: '-', class: 'opButton', dataKey: '-'},
+    {id: 'oneBtn', label: '1', class: 'numButton', dataKey: '1'},
+    {id: 'twoBtn', label: '2', class: 'numButton', dataKey: '2'},
+    {id: 'threeBtn', label: '3', class: 'numButton', dataKey: '3'},
+    {id: 'addBtn', label: '+', class: 'opButton', dataKey: '+'},
+    {id: 'zeroBtn', label: '0', class: 'numButton', dataKey: '0'},
+    {id: 'decimalBtn', label: '.', class: 'calcButton', dataKey: '.'},
+    {id: 'equalsBtn', label: '=', class: 'calcButton', dataKey: 'Enter'},
 ],
+
 
 add: function(x,y, precision) {
     const scaler = Math.pow(10, precision);
@@ -90,6 +91,19 @@ operate: function(a, op, b, precision) {
     }
 },
 
+handleKeyPress: function(event) {
+    const key = event.key;
+    // Special case for Escape key to trigger AC functionality
+    if (key === "Escape") {
+        document.getElementById("clearBtn").click();
+        return;
+    }
+    
+    const button = this.buttons.find(btn => btn.dataKey === key);
+    if (button) {
+        document.getElementById(button.id).click();
+    }
+},
 
 makeCalculator: function() {
     this.calculatorBox=document.createElement("div")
@@ -242,6 +256,7 @@ makeCalculator: function() {
         this.calculatorBox.appendChild(button);
     });
     document.body.appendChild(this.calculatorBox);
+    document.addEventListener('keypress', this.handleKeyPress.bind(this));
 },
 
 shredToFit: function(preTrim) {
