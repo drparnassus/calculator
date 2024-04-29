@@ -14,7 +14,7 @@ lastEquals: false,
 
 buttons: [
     {id: 'clearBtn', label: 'AC', class: 'calcButton', dataKey: 'Escape'},
-    {id: 'altBtn', label: '+/-', class: 'calcButton'},
+    {id: 'altBtn', label: '+/-', class: 'altButton', dataKey: 'Alt'},
     {id: 'moduloBtn', label: '%', class: 'opButton', dataKey: '%' },
     {id: 'divideBtn', label: '/', class: 'opButton', dataKey: '/'},
     {id: 'sevenBtn', label: '7', class: 'numButton', dataKey: '7'},
@@ -68,6 +68,10 @@ modulo: function(x, y, precision) {
     return (result / scaler).toFixed(precision);
 },
 
+reverseSign: function (x, precision) {
+    return (x*(-1)).toFixed(precision);
+},
+
 operate: function(a, op, b, precision) {
     precision = precision || 0;
 
@@ -86,6 +90,8 @@ operate: function(a, op, b, precision) {
             return this.divide(a, b, precision);
         case '%':
             return this.modulo(a, b, precision);
+        case '+/-':
+            return this.reverseSign(a, precision);
         default:
             throw new Error("Invalid operator");
     }
@@ -152,6 +158,42 @@ makeCalculator: function() {
                 calculator.newValue = buttonMaker.label;
                 calculator.updateCurrentValue();
                 // Console log the variables for debugging
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('result:', this.result);
+                console.log('operationClicked:', this.operationClicked);
+                console.log('last equals:', this.lastEquals);
+            });
+        }
+        if (buttonMaker.class == "altButton") {
+            button.addEventListener("click", () => {
+                if (this.oldValue && this.currentValue) {
+                    this.currentValue = this.reverseSign(this.currentValue);
+                    this.shredToFit(this.currentValue);
+                    console.log('oldValue:', this.oldValue);
+                    console.log('currentValue:', this.currentValue);
+                    console.log('operator:', this.operator);
+                    console.log('result:', this.result);
+                    console.log('operationClicked:', this.operationClicked);
+                    console.log('last equals:', this.lastEquals);
+                    return;
+                }
+                if (this.result) {
+                    this.result = this.reverseSign(this.result);
+                    this.shredToFit(this.result);
+                    console.log('oldValue:', this.oldValue);
+                    console.log('currentValue:', this.currentValue);
+                    console.log('operator:', this.operator);
+                    console.log('result:', this.result);
+                    console.log('operationClicked:', this.operationClicked);
+                    console.log('last equals:', this.lastEquals);
+                    return;
+                }
+                if (!this.oldValue && this.currentValue) {
+                    this.currentValue = this.reverseSign(this.currentValue);
+                    this.shredToFit(this.currentValue);
+                }
                 console.log('oldValue:', this.oldValue);
                 console.log('currentValue:', this.currentValue);
                 console.log('operator:', this.operator);
