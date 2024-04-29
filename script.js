@@ -7,7 +7,9 @@ newValue: '',
 oldValue: '',
 result: '',
 operator: '',
+newOperator: '',
 operationClicked: false,
+lastEquals: false,
 
 
 buttons: [
@@ -125,6 +127,7 @@ makeCalculator: function() {
         }
         if (buttonMaker.class == "numButton" || buttonMaker.id == "decimalBtn") {
             button.addEventListener("click", () => {
+                this.lastEquals = false;
                 // Clear the display if an operation button was clicked previously
                 if (calculator.operationClicked) {
                     calculator.clearDisplay();
@@ -133,10 +136,10 @@ makeCalculator: function() {
                 calculator.newValue = buttonMaker.label;
                 calculator.updateCurrentValue();
                 // Console log the variables for debugging
-            console.log('oldValue:', this.oldValue);
-            console.log('currentValue:', this.currentValue);
-            console.log('operator:', this.operator);
-            console.log('operationClicked:', this.operationClicked);
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('operationClicked:', this.operationClicked);
             });
         }
         if (buttonMaker.id == "clearBtn") {
@@ -146,25 +149,33 @@ makeCalculator: function() {
             console.log('oldValue:', this.oldValue);
             console.log('currentValue:', this.currentValue);
             console.log('operator:', this.operator);
+            console.log('newOp:', this.newOperator); 
             console.log('operationClicked:', this.operationClicked);
             });
         }
         if (buttonMaker.class == "opButton") {
             button.addEventListener("click", () => {
-                
-                if (this.oldValue && this.currentValue) {
-                    this.currentValue = this.operate(this.oldValue, this.operator, this.currentValue, 10);
-                    this.display.textContent = this.currentValue;
+                this.lastEquals = false;
+                if (this.result) {
+                    this.oldValue = this.result;
+                }
+                if (!this.oldValue && this.currentValue) {
+                    this.oldValue=this.currentValue;
                     this.currentValue='';
-                    console.log("hello world");
+                    this.operator = buttonMaker.label;
+                    this.operationClicked = true;
                 }
-
-                else {
-                this.operator=buttonMaker.label;
-                this.oldValue=this.currentValue;
-                this.currentValue='';
+                else if (this.oldValue && this.currentValue) {
+                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 10);
+                    this.operator = buttonMaker.label;
+                    this.oldValue = this.result;
+                    if (this.oldValue.includes('.') && this.oldValue.match(/\.?0+$/)) {
+                        this.oldValue = this.oldValue.replace(/\.?0+$/, '');
+                    }
+                    this.display.textContent = this.oldValue;
+                    this.result = '';
+                    this.currentValue = '';
                 }
-                this.operationClicked=true;
             // Console log the variables for debugging
             console.log('oldValue:', this.oldValue);
             console.log('currentValue:', this.currentValue);
@@ -175,9 +186,36 @@ makeCalculator: function() {
         if (buttonMaker.id == "equalsBtn") {
             button.addEventListener("click", () => {
                 console.log('oldValue:', this.oldValue);
+                console.log('currentValue type:', typeof this.currentValue);
                 console.log('currentValue:', this.currentValue);
                 console.log('operator:', this.operator);
                 console.log('operationClicked:', this.operationClicked);
+                console.log('result:', this.result);
+                console.log('last equals:', this.lastEquals);
+                console.log("calculating........");
+                if (this.lastEquals) {
+                    this.result = this.operate(this.result, this.operator, this.currentValue, 10)
+                    if (this.result.includes('.') && this.result.match(/\.?0+$/)) {
+                        this.result = this.result.replace(/\.?0+$/, '');
+                    }
+                    this.display.textContent = this.result;
+                }
+                else {
+                    this.result = this.operate(this.oldValue, this.operator, this.currentValue, 10)
+                    if (this.result.includes('.') && this.result.match(/\.?0+$/)) {
+                        this.result = this.result.replace(/\.?0+$/, '');
+                    }
+                    this.display.textContent = this.result;
+                }
+                this.lastEquals = true;
+                this.oldValue = '';
+                console.log('oldValue:', this.oldValue);
+                console.log('currentValue type:', typeof this.currentValue);
+                console.log('currentValue:', this.currentValue);
+                console.log('operator:', this.operator);
+                console.log('operationClicked:', this.operationClicked);
+                console.log('last equals:', this.lastEquals);
+                console.log('result:', this.result);
             });
         }
         
@@ -234,6 +272,7 @@ clearAll: function() {
     this.result='';
     this.operator='';
     this.operationClicked=false;
+    this.lastEquals = false;
     this.clearDisplay();
 },
 
